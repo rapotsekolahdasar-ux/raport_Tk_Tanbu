@@ -1,0 +1,1863 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>e-Raport Deep Learning TK (v29.13) - Final Raport Format</title>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    /* ===== Theme & layout (biru muda, Arial) ===== */
+    body { font-family: Arial, sans-serif; background:#e8f4fa; margin:0; padding:0; color:#222 }
+    header { background:#6fb8f5; color:#fff; padding:14px 10px; text-align:center; font-size:20px; font-weight:700 }
+    main { padding:18px; max-width:1100px; margin:0 auto 40px; }
+    .menu-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:16px; margin-top:24px; }
+    .menu-card { background:#fff; border-radius:12px; padding:20px; text-align:center; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,.08); transition:.18s }
+    .menu-card:hover { transform:translateY(-4px) }
+    .menu-card span { display:block; font-size:34px; margin-bottom:8px }
+    .card { background:#fff; padding:18px; border-radius:12px; box-shadow:0 6px 14px rgba(0,0,0,.06) }
+    .nav-bar { display:flex; justify-content:space-between; gap:8px; background:#c6e5ff; border-radius:8px; padding:8px; margin-bottom:12px; align-items:center }
+    .nav-bar button { background:#6fb8f5; color:#fff; border:none; padding:8px 12px; border-radius:8px; cursor:pointer }
+    section { display:none; animation:fadein .35s ease; }
+    @keyframes fadein { from {opacity:0} to {opacity:1} }
+    #dashboard { display:block; text-align:center }
+    input[type=text], select, textarea { padding:8px; border-radius:6px; border:1px solid #cfe9ff; background:#f8fcff; width:100%; box-sizing:border-box }
+    textarea { resize:vertical }
+    table { width:100%; border-collapse:collapse }
+    table th, table td { padding:8px; border:1px solid #e6f4ff; text-align:left }
+    .small { font-size:13px; color:#555 }
+    .foto-grid { display:flex; gap:12px; flex-wrap:wrap }
+    .foto-item { flex:1; min-width:160px; border:1px dashed #ddd; border-radius:8px; padding:8px; text-align:center; background:#fff }
+    .foto-preview { width:100%; height:120px; border-radius:6px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#fafafa; color:#888 }
+    .btn { background:#6fb8f5; color:#fff; border:none; padding:8px 12px; border-radius:8px; cursor:pointer }
+    .muted { color:#666; font-size:13px }
+    .top-right { position:fixed; right:18px; top:12px; display:flex; gap:8px; align-items:center }
+    .hidden { display:none }
+    .pilihan-horizontal { display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; margin-bottom:10px }
+    .pill { background:#f0fbff; padding:6px 10px; border-radius:20px; border:1px solid #d6f0ff; }
+    .toast { position:fixed; left:50%; transform:translateX(-50%); bottom:18px; background:#333; color:#fff; padding:8px 14px; border-radius:8px; display:none }
+    .tp-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; padding:6px 0; border-bottom:1px dotted #ddd; }
+    .tp-text { flex:1; padding-right:15px; font-size:14px; }
+    .penilaian-select { width: 140px; }
+    
+    /* ===== NEW RAPORT FORMAT STYLES (Word Doc Style) ===== */
+    .raport-container { 
+      border: none; 
+      padding: 0; 
+      margin-top: 15px; 
+      background: white; 
+      box-shadow: 0 0 10px rgba(0,0,0,.1); 
+      max-width: 200mm; 
+      font-size: 11pt; 
+      min-height: 287mm; 
+      margin-left: auto;
+      margin-right: auto;
+      box-sizing: border-box; 
+    }
+
+    /* ********* Perbaikan Margin Cetak ********* */
+    @media print, screen and (max-width: 200mm) {
+      .raport-container {
+        padding: 15mm 15mm 10mm 15mm; 
+        max-width: 210mm; 
+        box-shadow: none;
+      }
+    }
+    /* **************************************** */
+    
+    .raport-header h2, .raport-header h3, .raport-header h4 { margin: 0; padding: 0; }
+    .raport-header h2 { font-size: 16px; }
+    .raport-header h3 { font-size: 18px; font-weight: bold; }
+    .raport-header h4 { font-size: 14px; }
+
+    .raport-table-identity { width: 100%; margin-bottom: 20px; border-collapse: collapse; }
+    .raport-table-identity td { padding: 4px 0; border: none; font-size: 14px; }
+    
+    .elemen-raport-block { margin-top: 20px; border: 1px solid #222; page-break-inside: avoid; }
+    .elemen-raport-block h4 { 
+      background-color: #f2f2f2; 
+      padding: 6px 10px; 
+      border-bottom: 1px solid #222; 
+      margin: 0; 
+      font-size: 15px; 
+      font-weight: bold; 
+    }
+    
+    .elemen-content-block { padding: 10px; font-size: 14px; line-height: 1.4; }
+    .deskripsi-area { margin-bottom: 15px; }
+    .saran-area { margin-bottom: 15px; } 
+    .dokumentasi-area { border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 10px; }
+
+
+    /* Perubahan 1: Memperbesar ukuran foto cetak */
+    .raport-photos-block { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-start; margin-top: 5px; }
+    .raport-photos-block .foto-item-cetak { width: 120px; height: 120px; border: 1px solid #ddd; overflow: hidden; flex-shrink: 0;} /* Ditingkatkan dari 90px */
+    .raport-photos-block .foto-item-cetak img { width: 100%; height: 100%; object-fit: cover; }
+
+    .presensi-table { width: 300px; margin: 20px 0 10px 0; } 
+    .presensi-table th, .presensi-table td { border: 1px solid black; padding: 5px; text-align: center; }
+    .presensi-table th { background-color: #f2f2f2; }
+
+    .raport-ttd table { width: 100%; margin-top: 40px; border: none; font-size: 14px; }
+    .raport-ttd td { border: none; padding: 10px; text-align: center; width: 33.33%; }
+    .raport-ttd .signature-line { height: 60px; }
+    
+    /* ===== New Login/Lock styles (Grayscale) ===== */
+    .grayscale-mode {
+      filter: grayscale(100%);
+      pointer-events: none; /* Lock all interactions */
+    }
+    /* Exclude login area/toast from grayscale filter & re-enable clicks on them */
+    .grayscale-mode .top-right, .grayscale-mode #toast, .grayscale-mode #loginKeyIcon, .grayscale-mode .login-form {
+      filter: none;
+      pointer-events: auto;
+    }
+    
+    .icon-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+    }
+    .icon-eye {
+      position: absolute;
+      right: 8px;
+      top: 30px; 
+      cursor: pointer;
+      color: #6fb8f5;
+      font-size: 16px;
+    }
+    .login-form {
+      animation: fadein .2s ease;
+      position: absolute; 
+      right: 0; 
+      top: 50px; 
+      z-index: 100;
+      min-width: 280px;
+      padding: 15px;
+      text-align: left;
+    }
+    
+    /* Style untuk kolom prestasi di tabel siswa */
+    #tabelSiswa textarea {
+        min-width: 150px;
+        height: 60px;
+        font-size: 12px;
+        resize: vertical;
+    }
+
+  </style>
+</head>
+<body>
+  <header>e-Raport Deep Learning TK — Deep Learning</header>
+
+  <div class="top-right">
+    <button id="loginKeyIcon" class="icon-btn" onclick="toggleLoginForm()">
+      🔑
+    </button>
+    
+    <div id="loginForm" class="login-form hidden card">
+      <p style="font-weight: bold; margin-bottom: 10px;">Login Guru</p>
+      <div style="margin-bottom: 10px;">
+        <label class="small">Username:</label>
+        <input type="text" id="loginUsername" placeholder="guru" value="guru">
+      </div>
+      <div style="margin-bottom: 15px; position: relative;">
+        <label class="small">Password:</label>
+        <input type="password" id="loginPassword" placeholder="Password Anda" style="padding-right: 30px;">
+        <span id="togglePassword" class="icon-eye" onclick="togglePasswordVisibility()">
+          👁️
+        </span>
+      </div>
+      <button class="btn" onclick="handleLogin()" style="width: 100%;">Masuk</button>
+      
+      <a href="#" onclick="resetPassword(event)" style="display:block; margin-top:10px; font-size:12px; text-align:center;">Lupa Password? (Reset)</a>
+    </div>
+    
+    <div id="userBadge" class="muted hidden">
+      🔓 <span id="userName">Guru</span>
+    </div>
+  </div>
+
+  <main>
+    <section id="dashboard">
+      <img id="logoDashboard" src="" alt="Logo Sekolah" style="max-height:110px; display:block; margin:12px auto;">
+      <h2>Selamat Datang — e-Raport Deep Learning TK</h2>
+      <p class="muted">Aplikasi ringan untuk membantu guru TK dalam menyusun raport secara cepat dan rapi. **Semua menu sudah aktif.**</p>
+
+      <div class="menu-grid" id="menuGrid">
+        <div class="menu-card" id="mDataSiswa" onclick="showSection('dataSiswa')">
+          <span>👩‍👧‍👦</span>Data Siswa & Presensi
+        </div>
+        <div class="menu-card" id="mATP" onclick="showSection('alurTujuan')">
+          <span>🎯</span>Alur Tujuan Pembelajaran
+        </div>
+        <div class="menu-card" id="mIntra" onclick="showSection('intraKurikuler')">
+          <span>📘</span>Intra Kurikuler
+        </div>
+        <div class="menu-card" id="mKokur" onclick="showSection('koKurikuler')">
+          <span>📗</span>Ko Kurikuler
+        </div>
+        <div class="menu-card" id="mRaport" onclick="showSection('raport')">
+          <span>🧾</span>Raport
+        </div>
+        <div class="menu-card" id="mPengaturan" onclick="showSection('pengaturan')">
+          <span>⚙️</span>Pengaturan Sekolah
+        </div>
+      </div>
+      <p class="muted" style="margin-top:10px">Status: **Akses Penuh**.</p>
+    </section>
+
+    <section id="dataSiswa">
+      <div class="card">
+        <div style="margin-bottom: 15px;">
+            <button onclick="showSection('dashboard')">🏠 Kembali</button>
+        </div>
+        
+        <div class="nav-bar" style="background: none; padding: 0; margin-bottom: 20px;">
+          <div class="pilihan-horizontal" style="justify-content: flex-start; gap: 20px;">
+            <div style="min-width:220px">
+              <label>📋 Tempel data dari Excel (Nama[TAB]NISN[TAB]Kelas)</label>
+              <textarea id="inputSiswa" rows="6" placeholder="Contoh: Ani\t12345\tA"></textarea>
+              <div style="margin-top:8px"><button class="btn" onclick="importSiswa()">📥 Import Data</button> <button class="btn" onclick="tampilkanSiswa()">👀 Lihat Data</button></div>
+            </div>
+            <div style="min-width:220px">
+              <label>Tambah Manual</label>
+              <input type="text" id="namaManual" placeholder="Nama siswa">
+              <input type="text" id="nisnManual" placeholder="NISN (opsional)" style="margin-top:6px">
+              <input type="text" id="kelasManual" placeholder="Kelas" style="margin-top:6px">
+              <div style="margin-top:8px"><button class="btn" onclick="tambahManual()">➕ Tambah</button></div>
+            </div>
+          </div>
+        </div>
+
+        <h3>Daftar Siswa (dengan Kolom Prestasi)</h3>
+        <div id="tabelSiswa" style="margin-top:10px"></div>
+      </div>
+    </section>
+
+    <section id="alurTujuan">
+      <div class="card">
+        <div class="nav-bar">
+          <button onclick="showSection('dataSiswa')">⬅️ Kembali</button>
+          <button onclick="showSection('intraKurikuler')">⏭️ Lanjut Intra</button>
+        </div>
+        <h3>Alur Tujuan Pembelajaran (ATP)</h3>
+
+        <div class="pilihan-horizontal">
+          <div class="pill">
+            <label>Pilih Siswa</label>
+            <select id="pilihSiswaATP" onchange="onSiswaChangeATP()"><option value="">-- pilih siswa --</option></select>
+          </div>
+          <div class="pill">
+            <label>Kelas (otomatis)</label>
+            <input type="text" id="kelasATP" readonly>
+          </div>
+          <div class="pill">
+            <label>Jenis Penilaian</label>
+            <select id="jenisATP" onchange="onJenisChangeATP()"><option value="Intra">Intra Kurikuler</option><option value="KoKur">KoKur</option></select>
+          </div>
+        </div>
+        
+        <hr style="margin: 15px 0; border: none; border-top: 1px dashed #ddd;">
+
+        <div style="margin-top:12px; display:flex; gap:12px; flex-wrap:wrap">
+          <div style="flex:1; min-width:260px">
+            <label>Elemen</label>
+            <select id="selectElemen" onchange="onElemenChange()"></select>
+          </div>
+          <div style="width:160px">
+            <label>Fase</label>
+            <select id="selectFase" onchange="onFaseChange()"></select>
+          </div>
+        </div>
+
+        <hr style="margin: 15px 0; border: none; border-top: 1px dashed #ddd;">
+
+        <h4 id="judulDaftarTP" style="display:none; color:#333;">Daftar Tujuan Pembelajaran (Sub Elemen) & Penilaian</h4>
+        
+        <div style="display:flex; justify-content:flex-end; align-items:flex-end; margin-bottom: 5px;">
+            <div style="width:140px; text-align:right; font-weight:bold; color:#0056b3;">Penilaian Guru</div>
+        </div>
+        
+        <div id="daftarTujuanPembelajaran" style="margin-top:4px; min-height: 50px;">
+          <div class="muted">Pilih Siswa, Elemen, dan Fase untuk menampilkan daftar Tujuan Pembelajaran.</div>
+        </div>
+
+        <div style="margin-top:10px">
+          <button class="btn" onclick="simpanATP()">💾 Simpan Semua Penilaian di Atas</button>
+        </div>
+        
+      </div>
+    </section>
+
+    <section id="intraKurikuler">
+      <div class="card">
+        <div class="nav-bar">
+          <button onclick="showSection('alurTujuan')">⬅️ Kembali</button>
+          <button onclick="showSection('koKurikuler')">⏭️ Lanjut KoKur</button>
+        </div>
+        <h3>Intra Kurikuler</h3>
+        <div class="muted small">Nama siswa: <strong id="intraNama">-</strong></div>
+        <div style="margin-top:8px">
+          <h4>Nilai Agama & Budi Pekerti (Otomatis dari ATP)</h4>
+          <textarea id="deskAgama" rows="3" placeholder="Deskripsi akan terisi otomatis dari penilaian ATP. Anda bisa mengeditnya di sini."></textarea>
+          <div class="foto-grid" id="fotoGridAgama" style="margin-top:8px"></div>
+        </div>
+        <hr>
+        <div style="margin-top:8px">
+          <h4>Jati Diri (Otomatis dari ATP)</h4>
+          <textarea id="deskJatidiri" rows="3" placeholder="Deskripsi akan terisi otomatis dari penilaian ATP. Anda bisa mengeditnya di sini."></textarea>
+          <div class="foto-grid" id="fotoGridJatidiri" style="margin-top:8px"></div>
+        </div>
+        <hr>
+        <div style="margin-top:8px">
+          <h4>Literasi, Matematika, Sains, Teknologi, Rekayasa & Seni (Otomatis dari ATP)</h4>
+          <textarea id="deskLiterasi" rows="3" placeholder="Deskripsi akan terisi otomatis dari penilaian ATP. Anda bisa mengeditnya di sini."></textarea>
+          <div class="foto-grid" id="fotoGridLiterasi" style="margin-top:8px"></div>
+        </div>
+        <hr>
+        <div style="margin-top:8px">
+          <h4>Refleksi/Catatan Orang Tua</h4>
+          <textarea id="catatanOrtu" rows="3" placeholder="Catatan atau masukan dari orang tua mengenai perkembangan anak."></textarea>
+        </div>
+        <div style="margin-top:12px"><button class="btn" onclick="simpanIntra()">💾 Simpan Deskripsi Intra</button></div>
+      </div>
+    </section>
+
+    <section id="koKurikuler">
+      <div class="card">
+        <div class="nav-bar">
+          <button onclick="showSection('intraKurikuler')">⬅️ Kembali</button>
+          <button onclick="showSection('raport')">⏭️ Lanjut Raport</button>
+        </div>
+        <h3>Ko Kurikuler</h3>
+        <div class="muted small">Nama siswa: <strong id="kokurNama">-</strong></div>
+        <label>Deskripsi Capaian Proyek P5/P-RBL (Otomatis dari ATP KoKur)</label>
+        <textarea id="deskKokur" rows="3" placeholder="Deskripsi akan terisi otomatis dari penilaian ATP. Anda bisa mengeditnya di sini."></textarea>
+        <label style="margin-top:8px">Refleksi/Catatan Guru (Digunakan di Raport Intra/KoKur)</label>
+        <textarea id="catatanGuru" rows="3"></textarea>
+        <div class="foto-grid" id="fotoGridKokur" style="margin-top:8px"></div>
+        <div style="margin-top:12px"><button class="btn" onclick="simpanKokur()">💾 Simpan Deskripsi KoKur</button></div>
+      </div>
+    </section>
+
+    <section id="raport">
+      <div class="card">
+        <div class="nav-bar">
+          <button onclick="showSection('koKurikuler')">⬅️ Kembali</button>
+          <button onclick="showSection('pengaturan')">⚙️ Pengaturan</button>
+        </div>
+        <h3>Cetak Raport</h3>
+        <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px">
+          <label>Pilih Siswa:</label>
+          <select id="pilihSiswaCetak"></select>
+          <button class="btn" onclick="prepareCetak('intra')">Lihat & Download Intra</button>
+          <button class="btn" onclick="prepareCetak('kokur')">Lihat & Download KoKur</button>
+        </div>
+        <div id="previewCetak" style="margin-top:10px"></div>
+      </div>
+    </section>
+
+    <section id="pengaturan">
+      <div class="card">
+        <div class="nav-bar">
+          <button onclick="showSection('dashboard')">🏠 Kembali</button>
+        </div>
+        <h3>Pengaturan Sekolah</h3>
+        <label>Nama Sekolah (Nama Lengkap, ex: PAUD Islam Terpadu TK-KB Permata)</label>
+        <input type="text" id="namaSekolah">
+        <label>Nama Yayasan/Lembaga (Opsional)</label>
+        <input type="text" id="namaYayasan">
+        <label>Alamat Sekolah (Detail, ex: Jl. Lesehan Komplek Griya Asri No. 79 Rt. 05 Ds Kersik Putih Kec Batulicin Kab. Tanah Bumbu Prov Kalimantan selatan)</label>
+        <input type="text" id="alamatSekolah">
+        <label>Kontak Sekolah (HP/Email, ex: HP : 0821 4310 2821 &nbsp; Email : permatahati.tanbukab@gmail.com)</label>
+        <input type="text" id="kontakSekolah">
+        <hr style="margin: 15px 0;">
+        <label>Nama Kepala Sekolah</label>
+        <input type="text" id="kepalaSekolah">
+        <label>NIP/NIK Kepala Sekolah</label>
+        <input type="text" id="nipKepsek">
+        <label>Nama Guru Kelas</label>
+        <input type="text" id="guruKelas">
+        <label>NIP/NIK Guru</label>
+        <input type="text" id="nipGuru">
+        <label>Tahun Ajaran</label>
+        <input type="text" id="tahunAjaran" placeholder="2025/2026">
+        <label>Semester</label>
+        <input type="text" id="semester" placeholder="1 atau 2">
+        <label>Tanggal Rapor (Kota, dd MMMM yyyy)</label>
+        <input type="text" id="tanggalRapor" placeholder="Contoh: Batulicin, 21 Desember 2025">
+        <label style="margin-top:8px">Upload Logo Sekolah</label>
+        <input type="file" id="logoInput" accept="image/*">
+        <img id="logoPreview" style="display:block; max-height:90px; margin-top:8px" alt="Preview Logo">
+
+        <h4 style="margin-top:14px">Tim Pengembang (ringkas)</h4>
+        <div id="timPengembangArea">
+          <table id="timTable"><tr><th>Nama</th><th>No HP</th></tr></table>
+        </div>
+
+        <div style="margin-top:10px"><button class="btn" onclick="simpanPengaturan()">💾 Simpan</button></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    /* ===========================
+       MASTER ATP (elemen -> fase -> sub-elemen)
+       [Data diambil dari file ALUR TUJUAN PEMBELAJARAN TK PERMATA 2025.docx]
+       =========================== */
+    const MASTER_ATP = [
+      {
+        elemen: "Nilai Agama Dan Budi Pekerti",
+        fase: ["Usia 4-5 Tahun", "Usia 5-6 Tahun"],
+        sub: {
+          "Usia 4-5 Tahun": [
+            "KELOMPOK 1: Murid percaya kepada Tuhan YME, mengenal dan mempraktekkan ajaran pokok agama dan kepercayaannya",
+            "TP 1. Anak dapat mengetahui agama yang dianutnya.",
+            "TP 2. Meniru gerakan beribadah dengan urutan yang benar",
+            "TP 3. Mengucapkan doa sebelum dan/atau sesudah melakukan sesuatu",
+            "TP 4. Mengenal kalimat tayyibah (basmallah, alhamdulillah, subhanallah, dll)",
+            "TP 5. Menerapkan kata (tolong, terimakasih, maaf, dll) dalam keseharian",
+            "TP 6. Mengucapkan terima kasih",
+            "---",
+            "KELOMPOK 2: Murid menghargai diri sendiri dan memiliki rasa Syukur terhadap Tuhan YME",
+            "TP 1. Mengembalikan mainan setelah digunakan",
+            "TP. 2 Berpartisipasi aktif menjaga kebersihan lingkungan sekitarnya",
+            "TP 3. Membuang sampah pada tempatnya",
+            "TP 4. Mencuci tangan sebelum makan dan sesudah makan",
+            "TP 5. Mengetahui tentang kebersihan diri sendiri",
+            "---",
+            "KELOMPOK 3: Murid menghargai sesama manusia dengan berbagai perbedaannya",
+            "TP 1. Mengenal perilaku baik/sopan dan buruk",
+            "TP 2. Membiasakan diri berperilaku baik",
+            "TP 3. Mengucapkan salam dan menjawab salam",
+            "TP 4. Berani meminta maaf dan memberi maaf",
+            "TP 5. Mengenal makna kata (tolong, terimakasih, maaf, dll)",
+            "TP 6. Dapat membedakan perbuatan baik dan buruk",
+            "TP 7. Menyayangi teman",
+            "Tp 8. Menghargai orang yang sedang berbicara",
+            "TP 8. Bersikap ramah",
+            "TP 9. Mau berbagi, menolong, dan membantu teman",
+            "TP 10. Meminta maaf ketika berbuat salah",
+            "TP 11. Menghargai orang lain",
+            "TP 12. Menghargai orang lain",
+            "TP 12. Menghargai orang lain",
+            "---",
+            "KELOMPOK 4: Murid menghargai alam dan seluruh makhluk hidup ciptaan Tuhan YME",
+            "TP 1. Menghormati guru dan orang tua",
+            "TP 2. Bergotong royong",
+            "TP 3. Menjaga diri sendiri dari lingkungannya",
+            "TP 4. Berpartisipasi menjaga kebersihan lingkungan"
+          ],
+          "Usia 5-6 Tahun": [
+            "KELOMPOK 1: Murid percaya kepada Tuhan YME, mengenal dan mempraktekkan ajaran pokok agama dan kepercayaannya",
+            "TP 1. Mengenal agama yang dianut dan agama yang ada di Indonesia",
+            "TP 2. Melakukan praktik Gerakan ibadah dengan benar",
+            "TP 3. Mengucapkan doa sebelum dan/atau sesudah melakukan sesuatu",
+            "TP 4. Mengetahui hari besar agama",
+            "TP 5. Mengenal tempat ibadah sesuai agama dan tempat ibadah agama lain",
+            "TP 6. Mengetahui makna kalimat tayyibah (basmallah, alhamdulillah, subhanallah, dll)",
+            "TP 7. Mengucapkan salam dan menjawab salam tanpa diingatkan",
+            "---",
+            "KELOMPOK 2: Murid menghargai diri sendiri dan memiliki rasa Syukur terhadap Tuhan YME",
+            "TP 1. Bertanggung jawab atas diri sendiri, seperti membereskan mainan atau perlengkapan sendiri.",
+            "TP 2. Merapikan mainan setelah digunakan",
+            "TP 3. Mencuci tangan sebelum makan dan sesudah makan",
+            "TP 4.Mengetahui tentang kebersihan diri sendiri (mandi, gosok gigi, memotong kuku)",
+            "---",
+            "KELOMPOK 3: Murid menghargai sesama manusia dengan berbagai perbedaannya",
+            "TP 1. Mengenal perilaku baik/sopan dan buruk",
+            "TP 2. Berani meminta maaf dan memberi maaf",
+            "TP 3. Mengetahui makna kata (tolong, terimakasih, maaf, dll) dan konteks penggunaan kata tersebut dalam kehidupan sehari-hari",
+            "TP 4. Dapat membedakan perbuatan baik dan buruk",
+            "TP 5. Menyayangi teman dan guru",
+            "TP 6. Menghargai orang yang sedang berbicara",
+            "TP 7. Menerapkan kata (tolong, terimakasih, maaf, dll) dalam keseharian",
+            "TP 8. Bersikap ramah",
+            "TP 9. Bertanggung jawab atas perilakunya untuk kebaikan oranglain",
+            "TP 10. Mengucapkan terimakasih Ketika menerima sesuatu",
+            "TP 11. Meminta maaf ketika berbuat",
+            "TP 12. Berbagi dengan orang lain",
+            "TP 13. Menghargai hak/pendapat/karya orang lain",
+            "TP 14. Menunjukkan sikap toleran",
+            "TP 15. Mengenal tata krama dan sopan santun sesuai dengan nilai sosial budaya setempat",
+            "---",
+            "KELOMPOK 4: Murid menghargai alam dan seluruh makhluk hidup ciptaan Tuhan YME",
+            "TP 1. Perduli terhadap teman, guru dan lingkungan sekitar",
+            "TP 2. Menunjukkan sikap berbagi kepada orang lain",
+            "TP 3. Berpartisipasi menjaga lingkungan dengan baik (tidak mencoret dinding, tidak merusak fasilitas, dll)",
+            "TP 4. Berpartisipasi aktif menjaga kebersihan lingkungan sekitarnya",
+            "TP 5. Membuang sampah pada tempatnya"
+          ]
+        }
+      },
+      {
+        elemen: "Jati Diri",
+        fase: ["Usia 4-5 Tahun", "Usia 5-6 Tahun"],
+        sub: {
+          "Usia 4-5 Tahun": [
+            "KELOMPOK 1: Murid mengenali identitas dirinya yang terbentuk oleh karakteristik fisik, gender, minat kebutuhan, agama dan sosial budaya",
+            "TP 1. Menunjukkan rasa percaya diri",
+            "TP 2. Memiliki sikap gigih (tidak mudah menyerah)",
+            "TP 3. Menunjukkan rasa empati (peduli dengan kesulitan teman)",
+            "TP 4 Berpartisipasi dalam percakapan",
+            "---",
+            "KELOMPOK 2: Murid mengenali kebiasaan kebiasaan di lingkungan keluarga, satuan Pendidikan, dan Masyarakat",
+            "TP 1. Mengerti dua perintah yang diberikan bersamaan",
+            "---",
+            "KELOMPOK 3: Murid mengekspresikan dan mengelola emosi diri, serta membangun hubungan sosial secara sehat",
+            "TP 1. Bangga terhadap hasil karya sendiri",
+            "TP 2. Memahami peraturan dan disiplin",
+            "TP 3. Menunjukan antusiasme dalam melakukan permainan kompetitif secara positif",
+            "TP 4. Menyimak perkataan orang lain (bahasa ibu atau bahasa lainnya)",
+            "TP 5. Memahami cerita yang dibacakan",
+            "TP 6. Mengulang kata atau kalimat pendek setelah didengar",
+            "TP 7. Memahami instruksi sederhana yang didengar",
+            "TP 8. Mengenal suara–suara hewan/benda yang ada di sekitarnya",
+            "---",
+            "KELOMPOK 4: Murid mengenali perannya bagian dari keluarga, sekolah, Masyarakat, dan warga negara Indonesia",
+            "TP 1. Terbiasa mengatri",
+            "TP 2. Melakukan kegiatan sesuai dengan aturan dan tertib",
+            "TP 3. Menaati aturan yang berlaku dalam suatu permainan",
+            "---",
+            "KELOMPOK 5: Murid memiliki fungsi Gerak (motorik kasar) halus dan taktil untuk merawat kemandirian dan berkegiatan",
+            "TP 1. Berjalan dan berlari dengan keseimbangan yang baik",
+            "TP 2.Melompat dengan kedua kaki secara bersamaan",
+            "TP 3. Melompat dengan satu kaki",
+            "TP 4. Berlari zig-zag atau mengikuti garis lurus",
+            "TP 5. Meloncat sesuai dengan gambar pijakan",
+            "TP 6. Menendang bola dengan arah yang terkontrol",
+            "TP 7. Melempar dan menangkap bola dengan koordinasi tangan-mata yang baik",
+            "TP 8. Memindahkan bola dari bagian kanan tubuh ke bagian kiri tubuh dengan duduk",
+            "TP 9. Melewati papan titian tanpa kehilangan keseimbangan",
+            "TP 10. Menirukan gerakan pesawat terbang dengan tangan terbuka",
+            "TP 11. Berdiri dengan satu kaki selama beberapa detik",
+            "TP 12. Mampu menggambar bentuk sederhana seperti lingkaran dan garis lurus",
+            "TP 13. Menggunakan gunting untuk memotong kertas sesuai pola",
+            "TP 14. Bisa mengancingkan baju atau membuka resleting",
+            "TP 15. Mampu mengikat tali sepatu atau membuat simpul sederhana",
+            "TP 16. Bisa menggenggam pensil dengan benar",
+            "TP 17. Mampu meremas atau membentuk plastisin",
+            "TP 18. Bisa memegang benda kecil seperti kelereng tanpa kesulitan",
+            "TP 19. Dapat memasukkan manik-manik ke dalam lubang kecil",
+            "TP 20. Dapat memasukkan benang/senar ke dalam lubang manik-manik",
+            "TP 21. Bisa menyusun balok kecil dengan presisi"
+          ],
+          "Usia 5-6 Tahun": [
+            "KELOMPOK 1: Murid mengenali identitas dirinya yang terbentuk oleh karakteristik fisik, gender, minat kebutuhan, agama dan sosial budaya",
+            "TP 1. Bersikap kooperatif dengan teman",
+            "TP 2. Anak menunjukkan sikap ilmiah: \"ingin tahu, sabar menunggu, tertib menggunakan alat\"",
+            "---",
+            "KELOMPOK 2: Murid mengenali kebiasaan kebiasaan di lingkungan keluarga, satuan Pendidikan, dan Masyarakat",
+            "TP 1. Bergotong royong",
+            "---",
+            "KELOMPOK 3: Murid mengekspresikan dan mengelola emosi diri, serta membangun hubungan sosial secara sehat",
+            "TP 1. Memiliki kemampuan untuk menyesuaikan dengan situasi (mudah bergaul dengan teman)",
+            "TP 2. Mengenal perasaan sendiri dan mengelolanya secara wajar (mengendalikan diri secara wajar)",
+            "TP 3. Memiliki sikap gigih (tidak mudah menyerah)",
+            "TP 4. Memperlihatkan kehati-hatian kepada orang yang belum dikenal (menumbuhkan kepercayaan pada orang dewasa yang tepat)",
+            "TP 5. Bermain dengan teman sebaya",
+            "TP 6. Mengetahui perasaan temannya dan merespon secara wajar",
+            "TP 7. Mengekspresikan emosi yang sesuai dengan kondisi yang ada (senang-sedih-antusias dsb)",
+            "---",
+            "KELOMPOK 4: Murid mengenali perannya bagian dari keluarga, sekolah, Masyarakat, dan warga negara Indonesia",
+            "TP 1. Terbiasa mengatri",
+            "TP 2. Melakukan kegiatan sesuai dengan aturan dan tertib",
+            "TP 3. Menjaga barang titipan teman",
+            "TP 4. Bertanggung jawab atas perilakunya untuk kebaikan diri sendiri",
+            "TP 5. Mentaati aturan kelas (kegiatan, aturan)",
+            "---",
+            "KELOMPOK 5: Murid memiliki fungsi Gerak (motorik kasar) halus dan taktil untuk merawat kemandirian dan berkegiatan",
+            "TP 1.Berjalan mundur tanpa bantuan.",
+            "TP 2. Melompat maju dengan kontrol yang stabil",
+            "TP 3. Melompat dengan satu kaki secara bergantian",
+            "TP 4. Berjalan di atas balok keseimbangan tanpa terjatuh",
+            "TP 5. Melempar dan menangkap bola dengan akurasi tinggi",
+            "TP 6. Bermain lompat tali dengan koordinasi yang baik",
+            "TP 7. Menendang bola dengan arah dan kekuatan yang terkontrol",
+            "TP 8. Melakukan gerakan pesawat terbang sambil berjalan",
+            "TP 9. Berjalan sambil membawa benda di kepala",
+            "TP 10. Menangkap dan melempar bola sambil berdiri di atas satu kaki",
+            "TP 11. Mengikat tali sepatu sendiri",
+            "TP 12.Menggunting pola dengan presisi",
+            "TP 13. Mengancingkan baju dan menarik resleting tanpa bantuan",
+            "TP 14. Memegang pensil dengan benar dan menulis dengan tekanan yang sesuai",
+            "TP 15. Membentuk plastisin dengan detail rumit",
+            "TP 16. Menggunakan penjepit untuk mengambil benda kecil (ct: kacang hijau)",
+            "TP 17. Merangkai manik-manik dengan pola tertentu",
+            "TP 18.Mengontrol gerakan tangan saat mewarnai tanpa keluar garis"
+          ]
+        }
+      },
+      {
+        elemen: "Dasar-dasar Literasi, Matematika, Sains, Teknologi, Rekayasa, dan Seni",
+        fase: ["Usia 4-5 Tahun", "Usia 5-6 Tahun"],
+        sub: {
+          "Usia 4-5 Tahun": [
+            "KELOMPOK 1: Murid mengenali dan memahami berbagai informasi, mengomunikasikan perasaan dan pikiran secara lisan, tulisan, atau menggunakan berbagai media",
+            "TP. 1 Mengekspresikan sesuatu sesuai dengan idenya sendiri yang terkait denganberbagai pemecahan masalah",
+            "TP. 2 Memahami posisi/Kedudukan dalam keluarga",
+            "TP. 3 Memahami Posisi/kedudukan dalam sekolah",
+            "TP. 4 Anak mengajukan pertanyaan tentang fenomena yang diamati",
+            "TP. 5 Anak membuat dugaan atau prediksi (“Es di luar akan cepat meleleh”)",
+            "TP. 6 Anak mencoba menyimpulkan alasan di balik perubahan yang diamati",
+            "TP. 7 Anak menyampaikan hasil pengamatan secara lisan, menggambar, atau menuliskan dengan simbol atau huruf awal",
+            "TP. 8 Mengenali ciri makhluk hidup",
+            "TP. 9 Menjelaskan kebutuhan hidup makhluk hidup",
+            "TP. 10 Mengenali bayangan dan pantulan cahaya",
+            "TP 11. Anak mengenali benda-benda alam seperti batu, tanah, air, awan, matahari, dan bulan",
+            "TP 12. Menyimak perkataan orang lain (bahasa ibu atau bahasa lainnya)",
+            "TP 13. Memahami cerita yang dibacakan",
+            "TP 14. Memahami instruksi sederhana yang didengar",
+            "TP 15. Mengenal suara–suara hewan/benda yang ada di sekitarnya",
+            "TP 16. Mengulang kalimat sederhana",
+            "TP 17. Bertanya dengan kalimat yang benar",
+            "TP 18. Mengutarakan pendapat kepada orang lain",
+            "TP 19. Menyatakan alasan terhadap sesuatu yang di inginkan atau ketidak setujuan",
+            "TP 20. Berpartisipasi dalam percakapan",
+            "TP 21. Meniru huruf (mengucapkan huruf A-Z)",
+            "TP 22. Membaca nama sendiri",
+            "TP 23. Membaca satu kata yang sesuai dengan gambar",
+            "TP 24. Mengetahui Judul buku",
+            "TP 25. Menceritakan kembali isi sebuah cerita sesuai dengan pemahamannya",
+            "TP 26. Mengulang kalimat sederhana",
+            "TP 27. Berpartisipasi dalam percakapan",
+            "TP 28. Mengulang kalimat sederhana",
+            "TP 29. Berpartisipasi dalam percakapan",
+            "TP 30. Membaca nama sendiri",
+            "TP 31. Membaca satu kata yang sesuai dengan gambar",
+            "TP 32. Mengetahui Judul buku",
+            "TP 33. Menyebutkan nama-nama tokoh dalam sebuah cerita",
+            "TP 34. Menceritakan kembali isi sebuah cerita sesuai dengan pemahamannya",
+            "---",
+            "KELOMPOK 2: Murid memiliki kepekaan bilangan, mengidentifikasi pola, memiliki kesadaran tentang bentuk, posisi, dan ruang",
+            "TP. 1 Mengenal benda berdasarkan fungsinya (pensil, pisau, dll)",
+            "TP. 2 Mengenal konsep waktu (jam, hari, bulan)",
+            "TP. 3 Mengenal konsep gelap dan terang",
+            "TP. 4 Mengetahui konsep banyak dan sedikit",
+            "TP. 5 Mengetahui konsep besar dan kecil",
+            "TP. 6 Mengetahui konsep panjang dan pendek",
+            "TP. 7 Mengetahui konsep berat dan ringan",
+            "TP. 8 Mengenal pola kegiatan kegiatan pembelajaran",
+            "TP. 9 Mengklasifikasikan benda berdasarkan bentuk (geometri)",
+            "TP. 10 Mengklasifikasikan benda berdasarkan ukuran",
+            "TP. 11 Mengklasifikasikan benda berdasarkan warna",
+            "TP. 12 Mengulang pola (missal AB -AB dan ABC-ABC) dan mengulanginya",
+            "TP. 13 Membilang banyak benda (1-50)",
+            "TP. 14 Mengenal dan menyebutkan lambang bilangan",
+            "TP. 15 Anak mengelompokkan atau membandingkan benda berdasarkan sifat (misal: dingin vs hangat, basah vs kering)",
+            "TP 15. Mengelompokkan tanaman dan hewan",
+            "TP 16. Anak menyebutkan sifat benda (warna, tekstur, ukuran)",
+            "TP 17. Anak mengelompokkan benda berdasarkan bahan penyusun (logam, plastik, kayu)",
+            "TP 18. Menggunakan kata posisi (di atas, di bawah, dll.)",
+            "TP 19. Memahami posisi/kedudukan dalam sekolah",
+            "TP 20. Berpartisipasi dalam percakapan",
+            "TP 21. Meniru huruf (mengucapkan huruf A-Z)",
+            "TP 22. Membaca nama sendiri",
+            "TP 23. Membaca satu kata yang sesuai dengan gambar",
+            "TP 24. Mengetahui Judul buku",
+            "TP 25. Menceritakan kembali isi sebuah cerita sesuai dengan pemahamannya",
+            "TP 26. Mengulang kalimat sederhana",
+            "TP 27. Berpartisipasi dalam percakapan",
+            "TP 28. Membaca nama sendiri",
+            "TP 29. Membaca satu kata yang sesuai dengan gambar",
+            "TP 30. Mengetahui Judul buku",
+            "TP 31. Menyebutkan nama-nama tokoh dalam sebuah cerita",
+            "TP 32. Menceritakan kembali isi sebuah cerita sesuai dengan pemahamannya",
+            "---",
+            "KELOMPOK 3: Murid mampu menyebutkan alasan, pilihan, atau keputusannya, mampu memecahkan masalah sederhana, serta mengetahui hubungan sebab akibat",
+            "TP 1. Mengenal gejala sebab akibat",
+            "TP 2. Mengamati siklus hidup sederhana",
+            "TP 3. Anak mengamati perubahan wujud benda (mencair, menguap)",
+            "TP 4. Anak memprediksi hasil pencampuran dua bahan",
+            "TP 5. Membedakan gerakan akibat dorongan dan tarikan",
+            "TP 6. Menyebutkan sumber panas",
+            "TP 7. Anak menyatakan perkiraan /prediksi terkait perubahan alam (“Hari ini mendung, mungkin akan hujan”)",
+            "TP 8. Mengerti beberapa perintah secara bersamaan",
+            "TP 9. Menjawab pertanyaan yang lebih kompleks",
+            "TP 10. Mengulang kalimat yang lebih kompleks",
+            "TP 11. Menyampaikan ide atau pendapat dengan kalimat sendiri",
+            "TP 12. Menyusun kalimat sederhana dalam struktur lengkap(pokok kalimat predikat-keterangan)",
+            "TP 13. Meyebutkan simbol huruf A-Z",
+            "TP 14. Menyusun huruf menjadi kata sederhana (cth: ibu, rumah)",
+            "TP 15. Menyebutkan nama-nama tokoh dalam sebuah cerita",
+            "TP 16. Menggunakan cara yang diterima secara sosial dalam menyelesaikan masalah (menggunakan fikiran untuk menyelesaikan masalah)",
+            "---",
+            "KELOMPOK 4: Murid menunjukkan kemampuan awal menggunakan dan merekayasa teknologi serta mencari informasi",
+            "TP 1. Mengenal konsep proses terjadinya hujan",
+            "TP 2. Menggunakan benda sebagai permainan simbolik",
+            "TP 3. Anak melakukan pengamatan menggunakan indera (melihat, menyentuh, dll.)",
+            "TP 4. Anak menggunakan alat sederhana dalam pengamatan (misalnya nampan, kaca pembesar, stopwatch, penggaris, timbangan)",
+            "TP 5. Menyimpulkan pengaruh lingkungan terhadap makhluk hidup",
+            "TP 6. Menyalakan lampu sederhana dari baterai",
+            "TP 7. Mengulang kalimat yang lebh kompleks",
+            "TP 8. Mengetahui isi moral dalam sebuah cerita",
+            "TP 9. Menyusun puzzle dengan lebih banyak potongan",
+            "TP 10. Menggunakan gunting dan lem dengan rapi",
+            "TP 11. Mengulang kata atau kalimat pendek setelah didengar",
+            "TP 12. Memahami instruksi sederhana yang didengar",
+            "TP 13. Mengenal suara–suara hewan/benda yang ada di sekitarnya",
+            "TP 14. Bertanya dengan kalimat yang benar",
+            "TP 15. Mengutarakan pendapat kepada orang lain",
+            "TP 16. Menyatakan alasan terhadap sesuatu yang di inginkan atau ketidak setujuan",
+            "TP 17. Bertanya dengan kalimat yang benar",
+            "TP 18. Mengutarakan pendapat kepada orang lain",
+            "TP 19. Menyatakan alasan terhadap sesuatu yang di inginkan atau ketidak setujuan",
+            "---",
+            "KELOMPOK 5: Murid mengeksplorasi berbagai proses seni, mengekspresikannya, serta mengapresiasi karya seni",
+            "TP 1. Anak menggambar atau menyebutkan benda-benda di langit pada siang dan malam hari",
+            "TP 2. Memainkan alat musik/instrumen/benda yang dapat membentuk irama yang teratur",
+            "TP 3. Menyanyikan lagu anak-anak dengan ekspresi yang sesuai",
+            "TP 4. Menari mengikuti irama lagu",
+            "TP 5. Mendeskripsikan sesuatu (seperti binatang) dengan ekspresif yang berirama (contoh, anak menceritakan gajah dengan gerak dan mimik tertentu)",
+            "TP 6. Mengekspresikan emosi melalui gambar, gerakan, atau suara",
+            "TP 7. Membedakan peran fantasi dan kenyataan",
+            "TP 8. Menggambar bebas dengan berbagai warna",
+            "TP 9. Menggunakan alat seni dengan benar (plastisin, crayon, kuas, lem, gunting)",
+            "TP 10. Berpartisipasi aktif dalam kegiatan seni"
+          ],
+          "Usia 5-6 Tahun": [
+            "KELOMPOK 1: Murid mengenali dan memahami berbagai informasi, mengomunikasikan perasaan dan pikiran secara lisan, tulisan, atau menggunakan berbagai media",
+            "TP. 1 Mengekspresikan sesuatu sesuai dengan idenya sendiri yang terkait dengan berbagai pemecahan masalah",
+            "TP. 2 Memahami posisi/Kedudukan dalam keluarga",
+            "TP. 3 Memahami Posisi/kedudukan dalam sekolah",
+            "TP. 4 Anak mengajukan pertanyaan tentang fenomena yang diamati",
+            "TP. 5 Anak membuat dugaan atau prediksi (“Es di luar akan cepat meleleh”)",
+            "TP. 6 Anak mencoba menyimpulkan alasan di balik perubahan yang diamati",
+            "TP. 7 Anak menyampaikan hasil pengamatan secara lisan, menggambar, atau menuliskan dengan simbol atau huruf awal",
+            "TP 8. Mengenali ciri makhluk hidup",
+            "TP 9. Menjelaskan kebutuhan hidup makhluk hidup",
+            "TP 10. Mengenali bayangan dan pantulan cahaya",
+            "TP 11. Anak mengenali benda-benda alam seperti batu, tanah, air, awan, matahari, dan bulan",
+            "TP 12. Menyimak perkataan orang lain (bahasa ibu atau bahasa lainnya)",
+            "TP 13. Memahami cerita yang dibacakan",
+            "TP 14. Mengulang kata atau kalimat pendek setelah didengar",
+            "TP 15. Memahami pembedaharaan kata sifat (nakal, baik, pelit, dll)",
+            "TP 16. Memahami makna kata (tolong, terimakasih, permisi, dll)",
+            "TP 17. Memahami aturan dalam suatu permainan",
+            "TP 18. Berkomunikasi secara lisan dengan rekan sebaya",
+            "TP 19. Mengungkapkan perasaan dengan kata sifat (baik, buruk, sedih, senang dll)",
+            "TP 20. Memiliki lebih banyak kata-kata untuk mengekpresikan ide pada orang lain",
+            "TP 21. Melanjutkan sebagian cerita/dongeng yang telah diperdengarkan",
+            "TP 22. Membaca nama lengkap sendiri",
+            "TP 23. Membaca tiga kata yang memiliki struktur lengkap(pokok kalimat predikat-keterangan)",
+            "TP 24. Mengetahui Judul buku",
+            "TP 25. Menceritakan kembali isi sebuah cerita sesuai dengan pemahamannya",
+            "TP 26. Membuat kesimpulan sebuah cerita/dongeng dengan kalimat sendiri",
+            "---",
+            "KELOMPOK 2: Murid memiliki kepekaan bilangan, mengidentifikasi pola, memiliki kesadaran tentang bentuk, posisi, dan ruang",
+            "TP 1. Mengenal benda berdasarkan fungsinya (pensil, pisau, dll)",
+            "TP 2. Mengenal konsep waktu (jam, hari, bulan)",
+            "TP 3. Mengenal konsep gelap dan terang",
+            "TP 4. Mengetahui konsep banyak dan sedikit",
+            "TP 5. Mengetahui konsep besar dan kecil",
+            "TP 6. Mengetahui konsep panjang dan pendek",
+            "TP 7. Mengetahui konsep berat dan ringan",
+            "TP 8. Mengenal pola kegiatan kegiatan pembelajaran",
+            "TP 9. Mengklasifikasikan benda berdasarkan bentuk (geometri)",
+            "TP 10. Mengklasifikasikan benda berdasarkan ukuran",
+            "TP 11. Mengklasifikasikan benda berdasarkan warna",
+            "TP 12. Mengulang pola dengan lebih dari 2 variasi (missal ABCD - ABCD) dan mengulanginya",
+            "TP 13. Membilang banyak benda (1-100)",
+            "TP 14. Mengenal dan menyebutkan lambang bilangan",
+            "TP 15. Mengenal konsep operasi bilangan sederhana (penjumlahan dan pengurangan)",
+            "TP 16. Anak mengelompokkan atau membandingkan benda berdasarkan sifat (misal: dingin vs hangat, basah vs kering)",
+            "TP 17. Mengelompokkan tanaman dan hewan",
+            "TP 18. Anak menyebutkan sifat benda (warna, tekstur, ukuran)",
+            "TP 19. Anak mengelompokkan benda berdasarkan bahan penyusun (logam, plastik, kayu)",
+            "TP 20. Menggunakan kata posisi (di atas, di bawah, dll.)",
+            "TP 21. Menulis namanya sendiri dengan huruf yang jelas",
+            "TP 22. Menulis huruf kecil dengan rapi",
+            "---",
+            "KELOMPOK 3: Murid mampu menyebutkan alasan, pilihan, atau keputusannya, mampu memecahkan masalah sederhana, serta mengetahui hubungan sebab akibat",
+            "TP 1. Mengulang pola dengan lebih dari 2 variasi (missal ABCD - ABCD) dan mengulanginya",
+            "TP 2. Mengenal gejala sebab akibat",
+            "TP 3. Mengamati siklus hidup sederhana",
+            "TP 4. Anak mengamati perubahan wujud benda (mencair, menguap)",
+            "TP 5. Anak memprediksi hasil pencampuran dua bahan",
+            "TP 6. Membedakan gerakan akibat dorongan dan tarikan",
+            "TP 7. Menyebutkan sumber panas",
+            "TP 8. Anak menyatakan perkiraan /prediksi terkait perubahan alam (“Hari ini mendung, mungkin akan hujan”)",
+            "TP 9. Mengerti beberapa perintah secara bersamaan",
+            "TP 10. Menjawab pertanyaan yang lebih kompleks",
+            "TP 11. Mengulang kalimat yang lebih kompleks",
+            "TP 12. Menyampaikan ide atau pendapat dengan kalimat sendiri",
+            "TP 13. Menyusun kalimat sederhana dalam struktur lengkap(pokok kalimat predikat-keterangan)",
+            "TP 14. Meyebutkan simbol huruf A-Z",
+            "TP 15. Menyusun huruf menjadi kata sederhana (cth: ibu, rumah)",
+            "TP 16. Menyebutkan nama-nama tokoh dalam sebuah cerita",
+            "TP 17. Menggunakan cara yang diterima secara sosial dalam menyelesaikan masalah (menggunakan fikiran untuk menyelesaikan masalah)",
+            "---",
+            "KELOMPOK 4: Murid menunjukkan kemampuan awal menggunakan dan merekayasa teknologi serta mencari informasi",
+            "TP 1. Mengenal konsep proses terjadinya hujan",
+            "TP 2. Menggunakan benda sebagai permainan simbolik",
+            "TP 3. Anak melakukan pengamatan menggunakan indera (melihat, menyentuh, dll.)",
+            "TP 4. Anak menggunakan alat sederhana dalam pengamatan (misalnya nampan, kaca pembesar, stopwatch, penggaris, timbangan)",
+            "TP 5. Menyimpulkan pengaruh lingkungan terhadap makhluk Hidup",
+            "TP 6. Menyalakan lampu sederhana dari baterai",
+            "TP 7. Mengulang kalimat yang lebh kompleks",
+            "TP 8. Mengetahui isi moral dalam sebuah cerita",
+            "TP 9. Menyusun puzzle dengan lebih banyak potongan",
+            "TP 10. Menggunakan gunting dan lem dengan rapi",
+            "TP 11. Mengulang kalimat yang lebih kompleks",
+            "TP 12. Menyampaikan ide atau pendapat dengan kalimat sendiri",
+            "TP 13. Menyusun kalimat sederhana dalam struktur lengkap(pokok kalimat predikat-keterangan)",
+            "TP 14. Menyebutkan simbol huruf A-Z",
+            "TP 15. Menyusun huruf menjadi kata sederhana (cth: ibu, rumah)",
+            "TP 16. Menyebutkan nama-nama tokoh dalam sebuah cerita",
+            "---",
+            "KELOMPOK 5: Murid mengeksplorasi berbagai proses seni, mengekspresikannya, serta mengapresiasi karya seni",
+            "TP 1. Anak menggambar atau menyebutkan benda-benda di langit pada siang dan malam hari",
+            "TP 2. Memainkan alat musik/instrumen/benda yang dapat membentuk irama yang teratur",
+            "TP 3. Menyanyikan lagu anak-anak dengan ekspresi yang sesuai",
+            "TP 4. Menari mengikuti irama lagu",
+            "TP 5. Mendeskripsikan sesuatu (seperti binatang) dengan ekspresif yang berirama (contoh, anak menceritakan gajah dengan gerak dan mimik tertentu)",
+            "TP 6. Mengekspresikan emosi melalui gambar, gerakan, atau suara",
+            "TP 7. Membedakan peran fantasi dan kenyataan",
+            "TP 8. Menggambar bebas dengan berbagai warna",
+            "TP 9. Menggunakan alat seni dengan benar (plastisin, crayon, kuas, lem, gunting)",
+            "TP 10. Berpartisipasi aktif dalam kegiatan seni",
+            "TP 11. Menggambar dengan detail yang lebih baik" 
+          ]
+        }
+      }
+    ];
+
+    const VALUE_MAP = { '4': 'Sangat Baik', '3': 'Baik', '2': 'Cukup', '1': 'Perlu Bimbingan' };
+    const VALUE_ORDER = ['1','2','3','4'];
+
+    /* ===========================
+       AUTHENTICATION LOGIC (New)
+       =========================== */
+
+    const AUTH_USER = 'guru';
+    let isLoggedIn = localStorage.getItem('isLoggedIn') === 'true'; 
+
+    function getStoredPassword() {
+        return localStorage.getItem('appPassword') || 'erapport2025'; 
+    }
+
+    function applyLockState() {
+      const mainContent = document.querySelector('body');
+      const loginKeyIcon = document.getElementById('loginKeyIcon');
+      const userBadge = document.getElementById('userBadge');
+      const loginForm = document.getElementById('loginForm');
+
+      if (isLoggedIn) {
+        // Unlocked State (Color)
+        mainContent.classList.remove('grayscale-mode');
+        loginKeyIcon.innerHTML = '🔒'; // Lock icon for logout
+        userBadge.classList.remove('hidden');
+        if(loginForm) loginForm.classList.add('hidden');
+        document.getElementById('userName').textContent = AUTH_USER;
+        
+      } else {
+        // Locked State (Grayscale)
+        mainContent.classList.add('grayscale-mode');
+        loginKeyIcon.innerHTML = '🔑'; // Key icon for login
+        userBadge.classList.add('hidden');
+        
+        // Force back to dashboard when locked
+        document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+        const dashboard = document.getElementById('dashboard');
+        if(dashboard) dashboard.style.display = 'block';
+      }
+    }
+
+    function toggleLoginForm() {
+      const form = document.getElementById('loginForm');
+      if (isLoggedIn) {
+        // If logged in, click key icon is for logging out
+        handleLogout();
+      } else {
+        // If logged out, toggle the form visibility
+        form.classList.toggle('hidden');
+        // Pre-fill password field with stored password for testing/reset if needed
+        document.getElementById('loginPassword').value = getStoredPassword();
+      }
+    }
+
+    function togglePasswordVisibility() {
+      const passwordInput = document.getElementById('loginPassword');
+      const eyeIcon = document.getElementById('togglePassword');
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeIcon.innerHTML = '🙈'; // Change to hidden icon
+      } else {
+        passwordInput.type = 'password';
+        eyeIcon.innerHTML = '👁️'; // Change to visible icon
+      }
+    }
+
+    function handleLogin() {
+      const user = document.getElementById('loginUsername').value;
+      const pass = document.getElementById('loginPassword').value;
+      const form = document.getElementById('loginForm');
+
+      // Check against stored password
+      if (user === AUTH_USER && pass === getStoredPassword()) {
+        isLoggedIn = true;
+        localStorage.setItem('isLoggedIn', 'true');
+        form.classList.add('hidden');
+        showToast('Login berhasil! Akses penuh dibuka.');
+        applyLockState();
+        document.getElementById('loginPassword').value = ''; 
+      } else {
+        showToast('❌ Username atau Password salah! (Password default: erapport2025)');
+        document.getElementById('loginPassword').value = '';
+      }
+    }
+
+    function handleLogout() {
+      const confirmLogout = confirm("Apakah Anda yakin ingin keluar?");
+      if (confirmLogout) {
+        isLoggedIn = false;
+        localStorage.setItem('isLoggedIn', 'false');
+        applyLockState();
+        showToast('Logout berhasil. Aplikasi terkunci (grayscale).');
+      }
+    }
+
+    function resetPassword(event) {
+        if(event) event.preventDefault();
+        
+        const newPass = prompt("Masukkan password BARU Anda. Password akan direset menjadi yang baru Anda ketik (Simpan perubahan ini di tempat yang aman!):\n\nTips: Masukkan 'erapport2025' jika ingin kembali ke password default.");
+        
+        if (newPass === null || newPass.trim() === "") {
+            showToast("Pembatalan reset password.");
+            return;
+        }
+        
+        localStorage.setItem('appPassword', newPass.trim());
+        document.getElementById('loginPassword').value = newPass.trim();
+        showToast("✅ Password berhasil direset! Silakan coba login dengan password baru.");
+    }
+    
+    /* =========================== State (localStorage backed) =========================== */ 
+    let siswaData = JSON.parse(localStorage.getItem('siswaData')) || []; 
+    let atpData = JSON.parse(localStorage.getItem('atpData')) || {}; 
+    let pengaturan = JSON.parse(localStorage.getItem('pengaturan')) || {}; 
+    let photosData = JSON.parse(localStorage.getItem('photosData')) || {}; 
+    
+    /* =========================== Init UI (PENTING: Memastikan semua dropdown terisi saat DOMContentLoaded) =========================== */ 
+    document.addEventListener("DOMContentLoaded", () => { 
+      applyPengaturanToUI(); 
+      renderTimPengembang(); 
+      fillSiswaSelects(); 
+      populateMasterElemen(); 
+      renderSiswaTable(); 
+      refreshStudentInMenus(localStorage.getItem('currentStudent'));
+      
+      applyLockState(); 
+      
+      if(!isLoggedIn){
+        document.getElementById('loginPassword').value = getStoredPassword();
+      }
+    }); 
+
+    /* =========================== Siswa: import / render / delete / add manual =========================== */ 
+    function importSiswa() { 
+      const teks = document.getElementById('inputSiswa').value.trim(); 
+      if(!teks){ alert('Tidak ada data untuk diimpor'); return; } 
+      const rows = teks.split(/\r?\n/); 
+      const newS = []; 
+      rows.forEach(r => { 
+        const cols = r.split('\t').map(c=>c.trim()); 
+        if(cols[0]) { 
+            // Perubahan 2: Tambah field 'prestasi'
+          newS.push({ nama: cols[0], nisn: cols[1] || '', kelas: cols[2] || '', prestasi: '' }); 
+        } 
+      }); 
+      siswaData = siswaData.concat(newS); 
+      localStorage.setItem('siswaData', JSON.stringify(siswaData)); 
+      renderSiswaTable(); 
+      fillSiswaSelects(); 
+      showToast('Data siswa berhasil diimport'); 
+    } 
+    
+    function tambahManual() { 
+      const n = document.getElementById('namaManual').value.trim(); 
+      if(!n) return alert('Nama kosong'); 
+      const nisn = document.getElementById('nisnManual').value.trim(); 
+      const k = document.getElementById('kelasManual').value.trim() || ''; 
+      // Perubahan 2: Tambah field 'prestasi'
+      siswaData.push({ nama:n, nisn:nisn, kelas:k, prestasi:'' }); 
+      localStorage.setItem('siswaData', JSON.stringify(siswaData)); 
+      document.getElementById('namaManual').value=''; 
+      document.getElementById('nisnManual').value=''; 
+      document.getElementById('kelasManual').value=''; 
+      renderSiswaTable(); 
+      fillSiswaSelects(); 
+      showToast('Siswa ditambahkan'); 
+    } 
+    
+    function tampilkanSiswa(){ showSection('dataSiswa') } 
+    
+    function renderSiswaTable() { 
+      const container = document.getElementById('tabelSiswa'); 
+      if(!container) return; 
+      if(siswaData.length === 0){ container.innerHTML = '<div class="muted">Belum ada data siswa.</div>'; return; } 
+      
+      // Perubahan 2: Tambah kolom Prestasi Siswa
+      let html = '<table><thead><tr><th>No</th><th>Nama</th><th>NISN</th><th>Kelas</th><th>Prestasi Siswa</th><th>Aksi</th></tr></thead><tbody>'; 
+      siswaData.forEach((s, i) => { 
+        html += `<tr data-nama="${s.nama}">
+                  <td>${i+1}</td>
+                  <td>${s.nama}</td>
+                  <td>${s.nisn || '-'}</td>
+                  <td>${s.kelas || '-'}</td>
+                  <td><textarea rows="2" onchange="updateSiswaPrestasi('${s.nama}', this.value)" placeholder="Misal: Juara 1 lomba lari...">${s.prestasi || ''}</textarea></td> 
+                  <td><button class="btn" style="background:#dc3545" onclick="hapusSiswa('${s.nama}')">Hapus</button></td>
+                </tr>`; 
+      }); 
+      html += '</tbody></table>'; 
+      container.innerHTML = html; 
+    } 
+
+    // Perubahan 2: Fungsi untuk menyimpan Prestasi Siswa
+    function updateSiswaPrestasi(nama, prestasi) {
+        const siswaIndex = siswaData.findIndex(s => s.nama === nama);
+        if (siswaIndex !== -1) {
+            siswaData[siswaIndex].prestasi = prestasi;
+            localStorage.setItem('siswaData', JSON.stringify(siswaData));
+            showToast(`Prestasi ${nama} diperbarui.`);
+        }
+    }
+    
+    function hapusSiswa(nama) { 
+      if(!confirm(`Yakin hapus siswa ${nama}?`)) return; 
+      siswaData = siswaData.filter(s => s.nama !== nama); 
+      // Hapus semua data terkait siswa (ATP, Photo)
+      delete atpData[nama]; 
+      delete photosData[nama]; 
+
+      localStorage.setItem('siswaData', JSON.stringify(siswaData)); 
+      localStorage.setItem('atpData', JSON.stringify(atpData)); 
+      localStorage.setItem('photosData', JSON.stringify(photosData)); 
+      
+      renderSiswaTable(); 
+      fillSiswaSelects(); 
+      refreshStudentInMenus(''); 
+      showToast('Siswa berhasil dihapus'); 
+    } 
+
+    /* =========================== Section navigation =========================== */
+    function showSection(id) {
+      document.querySelectorAll('section').forEach(s=>s.style.display='none');
+      const el = document.getElementById(id);
+      if(el) el.style.display='block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* =========================== onSiswaChangeATP =========================== */
+    function onSiswaChangeATP(){
+      const s = document.getElementById('pilihSiswaATP').value;
+      const sd = siswaData.find(x=>x.nama===s);
+      
+      document.getElementById('kelasATP').value = sd ? (sd.kelas||'') : '';
+      
+      if(s) {
+        localStorage.setItem('currentStudent', s);
+        refreshStudentInMenus(s);
+        
+        const elemenTerpilih = document.getElementById('selectElemen').value;
+        if(elemenTerpilih) {
+            onElemenChange(); 
+        } else {
+             document.getElementById('daftarTujuanPembelajaran').innerHTML = '<div class="muted">⚠️ **Langkah 2 & 3:** Pilih Elemen dan Fase untuk memulai penilaian.</div>';
+        }
+        
+      } else {
+        localStorage.removeItem('currentStudent');
+        document.getElementById('daftarTujuanPembelajaran').innerHTML = '<div class="muted">⚠️ **Langkah 1:** Pilih Siswa di *dropdown* atas.</div>';
+        document.getElementById('judulDaftarTP').style.display = 'none';
+        refreshStudentInMenus('');
+      }
+    }
+
+    /* =========================== Helper: fill dropdowns with students =========================== */
+    function fillSiswaSelects() {
+      const sel = document.getElementById('pilihSiswaATP');
+      const sel2 = document.getElementById('pilihSiswaCetak');
+      
+      const selects = [sel, sel2].filter(s => s != null);
+      
+      selects.forEach(s => {
+        s.innerHTML = '<option value="">-- Pilih Siswa --</option>';
+        siswaData.sort((a,b) => a.nama.localeCompare(b.nama)).forEach(siswa => {
+          const o = document.createElement('option');
+          o.value = siswa.nama;
+          o.textContent = siswa.nama;
+          s.appendChild(o);
+        });
+      });
+      // Kembalikan seleksi siswa yang terakhir aktif
+      const currentStudent = localStorage.getItem('currentStudent');
+      if(sel && currentStudent) sel.value = currentStudent;
+      if(sel2 && currentStudent) sel2.value = currentStudent;
+    }
+    // Helper function to re-render TP list on Jenis change
+    function onJenisChangeATP(){
+      onFaseChange();
+    } 
+
+    /* =========================== MASTER_ATP UI populate =========================== */
+    function populateMasterElemen() {
+      const sel = document.getElementById('selectElemen');
+      if(!sel) return;
+      sel.innerHTML = '<option value="">-- Pilih Elemen --</option>';
+      MASTER_ATP.forEach((m, idx) => {
+        const o = document.createElement('option');
+        o.value = idx;
+        o.textContent = m.elemen;
+        sel.appendChild(o);
+      });
+    }
+    
+    function onElemenChange() {
+      const siswa = document.getElementById('pilihSiswaATP').value;
+      const idx = document.getElementById('selectElemen').value;
+      const faseSel = document.getElementById('selectFase');
+      const selectedFase = faseSel.value;
+      faseSel.innerHTML = '<option value="">-- Pilih Fase --</option>';
+      document.getElementById('daftarTujuanPembelajaran').innerHTML = '<div class="muted">Pilih Fase untuk menampilkan daftar Tujuan Pembelajaran.</div>';
+      document.getElementById('judulDaftarTP').style.display = 'none';
+
+      if(idx === '') return;
+      
+      const fases = MASTER_ATP[idx].fase;
+      fases.forEach(f => {
+        const o = document.createElement('option');
+        o.value=f;
+        o.textContent=f;
+        if(fases.length === 1) {
+          o.selected = true;
+        } else if (f === selectedFase) {
+          o.selected = true;
+        }
+        faseSel.appendChild(o);
+      });
+
+      if(siswa !== '' && faseSel.value !== '') {
+        onFaseChange();
+      }
+    } 
+
+    function onFaseChange() {
+      const siswa = document.getElementById('pilihSiswaATP').value;
+      const idx = document.getElementById('selectElemen').value;
+      const fase = document.getElementById('selectFase').value;
+      const jenis = document.getElementById('jenisATP').value;
+
+      if (!siswa) {
+        document.getElementById('daftarTujuanPembelajaran').innerHTML = '<div class="muted">⚠️ **Langkah 1:** Pilih Siswa di *dropdown* atas.</div>';
+        document.getElementById('judulDaftarTP').style.display = 'none';
+        return;
+      }
+      if(idx === '' || !fase) {
+        document.getElementById('daftarTujuanPembelajaran').innerHTML = '<div class="muted">⚠️ **Langkah 3:** Pilih Fase di *dropdown* atas.</div>';
+        document.getElementById('judulDaftarTP').style.display = 'none';
+        return;
+      }
+
+      renderTujuanPembelajaran(siswa, parseInt(idx), fase, jenis);
+      document.getElementById('judulDaftarTP').style.display = 'block';
+    } 
+
+    function renderTujuanPembelajaran(siswa, elemenIdx, fase, jenis) {
+      const elemenData = MASTER_ATP[elemenIdx];
+      const elemenNama = elemenData.elemen;
+      const subElemenList = elemenData.sub[fase] || [];
+      const container = document.getElementById('daftarTujuanPembelajaran');
+      
+      const siswaScores = (atpData[siswa] && atpData[siswa][jenis]) ? atpData[siswa][jenis] : [];
+
+      if(subElemenList.length === 0){
+        container.innerHTML = `<div class="muted">Tidak ada Tujuan Pembelajaran yang terdaftar untuk Elemen: ${elemenNama} dan Fase: ${fase}.</div>`;
+        return;
+      }
+
+      let html = '<div style="margin-top: 5px;">';
+      subElemenList.forEach((s, i) => {
+        // Skip KELOMPOK separator
+        if(s.startsWith('KELOMPOK') || s.startsWith('---')) {
+            html += `<p style="margin: 10px 0 5px; font-weight: bold; color: #444; border-top: 1px dashed #ddd; padding-top: 8px;">${s}</p>`;
+            return;
+        }
+
+        const tpID = `${elemenIdx}-${fase.replace(/\s/g,'-')}-${i}`;
+        const existingScore = siswaScores.find(item => item.id === tpID);
+        const currentScore = existingScore ? existingScore.score : '';
+
+        html += `<div class="tp-row"> 
+          <div class="tp-text"> ${s} </div> 
+          <div style="flex-shrink:0;"> 
+            <select class="penilaian-select" name="${tpID}" data-tp-text="${s}" data-elemen="${elemenNama}" data-fase="${fase}" data-index="${i}" data-jenis="${jenis}"> 
+              <option value="">-- Penilaian Guru --</option> 
+              <option value="4" ${currentScore === '4' ? 'selected' : ''}>Sangat Baik</option> 
+              <option value="3" ${currentScore === '3' ? 'selected' : ''}>Baik</option> 
+              <option value="2" ${currentScore === '2' ? 'selected' : ''}>Cukup</option> 
+              <option value="1" ${currentScore === '1' ? 'selected' : ''}>Perlu Bimbingan</option> 
+            </select> 
+          </div> 
+        </div>`;
+      });
+      html += '</div>';
+      container.innerHTML = html;
+    } 
+
+    /* =========================== Save ATP (mass save) =========================== */
+    function simpanATP() {
+      const siswa = document.getElementById('pilihSiswaATP').value;
+      if(!siswa) return alert('Pilih siswa dulu!');
+      const elemenIdx = document.getElementById('selectElemen').value;
+      const fase = document.getElementById('selectFase').value;
+      if(!elemenIdx || !fase) return alert('Pilih Elemen dan Fase terlebih dahulu.');
+      
+      const kelas = (siswaData.find(s=>s.nama===siswa) || {}).kelas || '';
+      const jenis = document.getElementById('jenisATP').value;
+
+      if(!atpData[siswa]) atpData[siswa] = { Intra:[], KoKur:[], intraSummary:{}, kokurSummary:{} };
+
+      let arr = jenis === 'Intra' ? atpData[siswa].Intra : atpData[siswa].KoKur;
+      const elemenNama = MASTER_ATP[elemenIdx].elemen;
+
+      // 1. Filter out old scores for the current Elemen, Fase, and Jenis
+      arr = arr.filter(item => !(item.elemen === elemenNama && item.fase === fase && item.jenis === jenis));
+      
+      // 2. Iterate through all select menus for the current group and gather new scores
+      const selectMenus = document.querySelectorAll('#daftarTujuanPembelajaran select.penilaian-select');
+      let savedCount = 0;
+      selectMenus.forEach(select => {
+        if (select.value === "") return;
+        
+        const uniqueId = select.name;
+        if(select.dataset.elemen !== elemenNama || select.dataset.fase !== fase || select.dataset.jenis !== jenis) return;
+
+        const newEntry = {
+          id: uniqueId, // e.g. "0-Usia 5-6 Tahun-1"
+          elemen: select.dataset.elemen,
+          fase: select.dataset.fase,
+          score: select.value, // '4', '3', '2', '1'
+          text: select.dataset.tpText,
+          jenis: select.dataset.jenis
+        };
+        arr.push(newEntry);
+        savedCount++;
+      });
+      
+      // 3. Save back to the main data structure
+      if(jenis === 'Intra') atpData[siswa].Intra = arr;
+      if(jenis === 'KoKur') atpData[siswa].KoKur = arr;
+      
+      localStorage.setItem('atpData', JSON.stringify(atpData));
+      
+      // 4. Update the summary descriptors immediately after saving ATP
+      updateDeskripsiOtomatis(siswa);
+
+      showToast(`💾 ${savedCount} penilaian untuk ${elemenNama} (${fase}) berhasil disimpan!`);
+      
+      // Re-render to ensure UI reflects saved state (only for the current view)
+      renderTujuanPembelajaran(siswa, parseInt(elemenIdx), fase, jenis);
+    }
+
+    /* =========================== DESKRIPSI OTOMATIS LOGIC =========================== */
+
+    // Helper: Compute the descriptive text based on a group of scored TPs
+    function computeDescriptor(scores, siswaName) {
+      if(!scores || scores.length === 0) return '';
+      
+      // Find the highest score achieved (e.g., '4' for Sangat Baik)
+      const maxScore = Math.max(...scores.map(s => parseInt(s.score, 10)));
+      const highestScore = String(maxScore);
+      
+      // Filter the achieved TPs to only include those with the highest score
+      const achievedTP = scores
+        .filter(s => s.score === highestScore)
+        .map(s => s.text.replace(/TP\s*\d+\.\s*/, '').trim()); // Remove 'TP X. ' prefix
+
+      if (maxScore === 0) return '';
+      
+      const highestScoreName = VALUE_MAP[highestScore];
+
+      // Use a standard prefix and descriptive phrase
+      let desc = `menunjukkan hasil **${highestScoreName}** dalam penguasaan Tujuan Pembelajaran, khususnya pada: `;
+      
+      if (achievedTP.length <= 4) {
+        // Jika sedikit, list semua
+        desc += achievedTP.join(', dan ');
+      } else {
+        // Jika banyak, sebutkan 4 teratas dan jumlah sisanya
+        desc += `${achievedTP.slice(0, 4).join(', ')} (dan ${achievedTP.length - 4} tujuan lainnya)`;
+      }
+
+      // Prepend the required phrase
+      return `Ananda ${siswaName} ${desc}`;
+    }
+
+    /* =========================== update Deskripsi Otomatis =========================== */
+    function updateDeskripsiOtomatis(siswa) {
+      const data = atpData[siswa] || { Intra:[], KoKur:[] };
+      const intraGroup = {};
+      const literasiElemen = 'Dasar-dasar Literasi, Matematika, Sains, Teknologi, Rekayasa, dan Seni';
+      
+      (data.Intra||[]).forEach(it=>{
+        if(!intraGroup[it.elemen]) intraGroup[it.elemen]=[];
+        intraGroup[it.elemen].push(it);
+      });
+      
+      const descAgama = computeDescriptor(intraGroup['Nilai Agama Dan Budi Pekerti'] || [], siswa);
+      const descJatidiri = computeDescriptor(intraGroup['Jati Diri'] || [], siswa);
+      const descLiterasi = computeDescriptor(intraGroup[literasiElemen] || [], siswa);
+
+      if(!atpData[siswa].intraSummary) atpData[siswa].intraSummary = {};
+      atpData[siswa].intraSummary.agama = descAgama;
+      atpData[siswa].intraSummary.jati = descJatidiri;
+      atpData[siswa].intraSummary.literasi = descLiterasi;
+      // Catatan Ortu field is saved/loaded in simpanIntra/refreshStudentInMenus
+
+      
+      const kokurGroup = {};
+      (data.KoKur||[]).forEach(it=>{
+        if(!kokurGroup[it.elemen]) kokurGroup[it.elemen]=[];
+        kokurGroup[it.elemen].push(it);
+      });
+      
+      const kokurDescArr = [];
+      for(const el in kokurGroup){
+        const desc = computeDescriptor(kokurGroup[el], siswa);
+        if(desc) kokurDescArr.push(`[${el}]: ${desc}`);
+      }
+      
+      if(!atpData[siswa].kokurSummary) atpData[siswa].kokurSummary = {};
+      atpData[siswa].kokurSummary.desk = kokurDescArr.join('\n\n');
+
+      localStorage.setItem('atpData', JSON.stringify(atpData));
+      
+      refreshStudentInMenus(siswa);
+    } 
+
+    function refreshStudentInMenus(siswa) {
+      if(!siswa) {
+        document.getElementById('intraNama').textContent = '-';
+        document.getElementById('kokurNama').textContent = '-';
+        
+        document.getElementById('deskAgama').value = '';
+        document.getElementById('deskJatidiri').value = '';
+        document.getElementById('deskLiterasi').value = '';
+        document.getElementById('catatanOrtu').value = ''; // Perubahan 4: Load Catatan Ortu
+        
+        document.getElementById('deskKokur').value = '';
+        document.getElementById('catatanGuru').value = '';
+        
+        renderPhotoGridForStudent('');
+        return;
+      }
+      
+      const data = atpData[siswa] || {};
+      const intra = data.intraSummary || {};
+      const kokur = data.kokurSummary || {};
+      
+      document.getElementById('intraNama').textContent = siswa;
+      document.getElementById('kokurNama').textContent = siswa;
+
+      // Update Intra Desk (Perubahan 4: Tambah catatanOrtu)
+      document.getElementById('deskAgama').value = intra.agama || '';
+      document.getElementById('deskJatidiri').value = intra.jati || '';
+      document.getElementById('deskLiterasi').value = intra.literasi || '';
+      document.getElementById('catatanOrtu').value = intra.catatanOrtu || ''; 
+      
+      // Update KoKur Desk/Catatan Guru
+      document.getElementById('deskKokur').value = kokur.desk || '';
+      document.getElementById('catatanGuru').value = kokur.catatan || '';
+      
+      // Update Photos
+      renderPhotoGridForStudent(siswa);
+    }
+
+    /* =========================== Photo Grid Management =========================== */
+
+    const PHOTO_AREAS = [
+      { key: 'agama', id: 'fotoGridAgama' },
+      { key: 'jatidiri', id: 'fotoGridJatidiri' },
+      { key: 'literasi', id: 'fotoGridLiterasi' },
+      { key: 'kokur', id: 'fotoGridKokur' }
+    ];
+
+    function renderPhotoGridForStudent(siswa) {
+      if(!siswa){
+        PHOTO_AREAS.forEach(ar => {
+          const cont = document.getElementById(ar.id);
+          if(cont) cont.innerHTML = '<div class="muted">Pilih siswa di menu ATP untuk upload foto.</div>';
+        });
+        return;
+      }
+
+      PHOTO_AREAS.forEach(ar => {
+        const cont = document.getElementById(ar.id);
+        if(!cont) return;
+
+        const currentPhotos = photosData[siswa] ? (photosData[siswa][ar.key] || []) : [];
+        cont.innerHTML = '';
+        
+        for(let i=0; i<3; i++){
+          const src = currentPhotos[i];
+          const div = document.createElement('div');
+          div.className = 'foto-item';
+          
+          const preview = document.createElement('div');
+          preview.className = 'foto-preview';
+          if(src) preview.innerHTML = `<img src="${src}" style="width:100%; height:100%; object-fit:cover" alt="Foto">`;
+          else preview.textContent = 'Slot Foto ' + (i+1);
+
+          const input = document.createElement('input');
+          input.type='file';
+          input.accept='image/*';
+          input.onchange = (e)=>{
+            handlePhotoInput(e, siswa, ar.key, i);
+          };
+
+          div.appendChild(preview);
+          div.appendChild(input);
+          cont.appendChild(div);
+        }
+      });
+    }
+
+    function handlePhotoInput(e, siswa, key, index) {
+      const file = e.target.files[0];
+      if(!file || !siswa){
+        alert('Pilih siswa di ATP terlebih dahulu');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        if(!photosData[siswa]) photosData[siswa] = { agama:[], jatidiri:[], literasi:[], kokur:[] };
+        
+        const arr = photosData[siswa][key] || [];
+        arr[index] = ev.target.result;
+
+        // Ensure array size is max 3 and compact it
+        photosData[siswa][key] = arr.filter((v, i) => i < 3 && (v || i < arr.length)); 
+        
+        localStorage.setItem('photosData', JSON.stringify(photosData));
+        renderPhotoGridForStudent(siswa);
+        showToast('Foto tersimpan untuk ' + siswa);
+      };
+      reader.readAsDataURL(file);
+    } 
+
+    /* =========================== Save Intra / KoKur =========================== */
+    function simpanIntra() {
+      const s = localStorage.getItem('currentStudent');
+      if(!s) return alert('Pilih siswa di ATP dahulu agar terhubung ke Intra.');
+
+      if(!atpData[s]) atpData[s] = { Intra:[], KoKur:[], intraSummary:{}, kokurSummary:{} };
+
+      // Perubahan 4: Simpan catatanOrtu
+      atpData[s].intraSummary = { 
+        agama: document.getElementById('deskAgama').value, 
+        jati: document.getElementById('deskJatidiri').value, 
+        literasi: document.getElementById('deskLiterasi').value, 
+        catatanOrtu: document.getElementById('catatanOrtu').value, 
+      };
+
+      localStorage.setItem('atpData', JSON.stringify(atpData));
+      showToast('Data Intra tersimpan');
+    }
+
+    function simpanKokur() {
+      const s = localStorage.getItem('currentStudent');
+      if(!s) return alert('Pilih siswa di ATP dahulu agar terhubung ke KoKur.');
+
+      if(!atpData[s]) atpData[s] = { Intra:[], KoKur:[], intraSummary:{}, kokurSummary:{} };
+
+      atpData[s].kokurSummary.desk = document.getElementById('deskKokur').value;
+      atpData[s].kokurSummary.catatan = document.getElementById('catatanGuru').value;
+
+      localStorage.setItem('atpData', JSON.stringify(atpData));
+      showToast('Data KoKur tersimpan');
+    }
+
+    /* =========================== Toast / Feedback =========================== */
+    function showToast(message) {
+      const t = document.getElementById('toast');
+      t.textContent = message;
+      t.style.display = 'block';
+      setTimeout(() => {
+        t.style.display = 'none';
+      }, 3000);
+    }
+
+    /* =========================== Cetak Raport Logic =========================== */
+
+    function prepareCetak(jenis) {
+      const s = document.getElementById('pilihSiswaCetak').value;
+      if (!s) { alert('Pilih siswa yang akan dicetak raportnya.'); return; }
+      
+      const siswaDetail = siswaData.find(x => x.nama === s) || {};
+      const data = atpData[s] || {};
+      const peng = pengaturan;
+
+      const namaSekolah = peng.namaSekolah || 'PAUD/TK [Nama Sekolah Anda]';
+      const tahunAjaran = peng.tahunAjaran || '[Tahun Ajaran]';
+      const semester = peng.semester || '[Semester]';
+      const kepalaSekolah = peng.kepalaSekolah || '[Nama Kepala Sekolah]';
+      const nipKepsek = peng.nipKepsek || '-';
+      const guruKelas = peng.guruKelas || '[Nama Guru Kelas]';
+      const nipGuru = peng.nipGuru || '-';
+      const tanggalRapor = peng.tanggalRapor || '[Kota, Tanggal Rapor]';
+      
+      // Perubahan 2 & 4: Ambil data tambahan
+      const sum = data.intraSummary || {};
+      const prestasiSiswa = siswaDetail.prestasi || 'Tidak ada catatan prestasi yang dilaporkan.'; 
+      const catatanOrtu = sum.catatanOrtu || '-'; 
+
+      // --- 1. RAPORT HEADER (Meniru Word Doc) ---
+      const headerHtml = `
+        <div class="raport-header" style="text-align: center; margin-bottom: 10px;">
+          <div style="margin-bottom: 5px;">
+            <img src="${peng.logoDataURL || ''}" alt="Logo" style="max-height: 90px;">
+          </div>
+          <h4 style="margin: 0; font-size: 14px; font-weight: normal; line-height: 1.2;">LAPORAN HASIL BELAJAR PESERTA DIDIK PENDIDIKAN ANAK USIA DINI (PAUD) ISLAM TERPADU</h4>
+          <h3 style="margin: 0; font-size: 20px; font-weight: bold; line-height: 1.2;">${namaSekolah.toUpperCase()}</h3>
+          <h4 style="margin: 0; font-size: 14px; line-height: 1.2;">TAHUN AJARAN ${tahunAjaran}</h4>
+          <p style="margin: 2px 0 0 0; font-size: 10px; line-height: 1.2;">
+            ${peng.alamatSekolah || 'Jl. [Alamat Lengkap Sekolah]'}
+            <br>
+            ${peng.kontakSekolah || 'HP : [Kontak HP] &nbsp; Email : [email@sekolah.com]'}
+          </p>
+          <hr style="border: 1px solid #222; margin-top: 10px; margin-bottom: 10px;">
+        </div>
+        <h2 style="text-align: center; margin: 15px 0 10px 0; font-size: 18px;">LAPORAN PERKEMBANGAN ANAK DIDIK</h2>
+      `;
+
+      // --- 2. IDENTITAS SISWA (Meniru Word Doc) ---
+      const identitasHtml = `
+        <div class="raport-identitas">
+          <table class="raport-table-identity" style="width: 100%;">
+            <tr>
+              <td style="width: 25%;">Nama Sekolah</td>
+              <td style="width: 5px;">:</td>
+              <td style="width: 30%;">${namaSekolah}</td>
+              <td style="width: 15%;">Kelas</td>
+              <td style="width: 5px;">:</td>
+              <td>${siswaDetail.kelas || '-'}</td>
+            </tr>
+            <tr>
+              <td>Nama Siswa</td>
+              <td>:</td>
+              <td><strong>${s}</strong></td>
+              <td>Fase</td>
+              <td>:</td>
+              <td>Fondasi</td>
+            </tr>
+            <tr>
+              <td>Semester / TA</td>
+              <td>:</td>
+              <td>${semester} / ${tahunAjaran}</td>
+              <td>Tinggi Badan</td>
+              <td>:</td>
+              <td>...... Cm</td>
+            </tr>
+            <tr>
+              <td>Guru Kelas</td>
+              <td>:</td>
+              <td>${guruKelas}</td>
+              <td>Berat Badan</td>
+              <td>:</td>
+              <td>...... Kg</td>
+            </tr>
+          </table>
+        </div>
+      `;
+
+      // --- 3. KONTEN UTAMA (Block Style for Intra) ---
+      let elemenBlocks = '';
+      if(jenis === 'intra'){
+        
+        const literasiElemen = 'Dasar-dasar Literasi, Matematika, Sains, Teknologi, Rekayasa, dan Seni';
+
+        // Block elements with keys matching PHOTO_AREAS
+        [
+          { name: 'Nilai Agama & Budi Pekerti', key: 'agama', desk: sum.agama },
+          { name: 'Jati Diri', key: 'jatidiri', desk: sum.jati },
+          { name: 'Literasi, Matematika, Sains, Teknologi, Rekayasa & Seni', key: 'literasi', desk: sum.literasi }
+        ].forEach(el => {
+          const currentPhotos = photosData[s] ? (photosData[s][el.key] || []) : [];
+          elemenBlocks += `
+            <div class="elemen-raport-block">
+              <h4>${el.name}</h4>
+              <div class="elemen-content-block">
+                <div class="deskripsi-area">
+                  <p><strong>Deskripsi Perkembangan:</strong></p>
+                  <p>${el.desk ? el.desk.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') : 'Belum ada deskripsi capaian yang tersimpan.'}</p>
+                </div>
+                <div class="dokumentasi-area">
+                  <p><strong>Dokumentasi Kegiatan Pilihan (3 Foto Terbaik)</strong></p>
+                  <div class="raport-photos-block">
+                    ${currentPhotos.slice(0,3).map(src => `<div class="foto-item-cetak"><img src="${src}" alt="Foto Dokumen"></div>`).join('')}
+                    ${3-currentPhotos.slice(0,3).length > 0 ? Array(3-currentPhotos.slice(0,3).length).fill('<div class="foto-item-cetak" style="background:#f0f0f0; display:flex; align-items:center; justify-content:center; color:#888; font-size:10px;">No Photo</div>').join('') : ''}
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        });
+        
+        // Perubahan 2: Tambah blok Prestasi Siswa
+        elemenBlocks += `
+          <div style="margin-top: 25px; page-break-inside: avoid; border: 1px solid #222; border-radius: 6px;">
+            <h4 style="background-color: #f2f2f2; padding: 6px 10px; border-bottom: 1px solid #222; margin: 0; font-size: 15px; font-weight: bold;">Prestasi Siswa</h4>
+            <div style="padding: 10px;">
+              <p>${prestasiSiswa.replace(/\n/g, '<br>')}</p>
+            </div>
+          </div>
+        `;
+
+        // Perubahan 4: Tambah blok Refleksi/Catatan Orang Tua
+        elemenBlocks += `
+          <div style="margin-top: 25px; page-break-inside: avoid; border: 1px solid #222; border-radius: 6px;">
+            <h4 style="background-color: #f2f2f2; padding: 6px 10px; border-bottom: 1px solid #222; margin: 0; font-size: 15px; font-weight: bold;">Refleksi/Catatan Orang Tua</h4>
+            <div style="padding: 10px;">
+              <p>${catatanOrtu.replace(/\n/g, '<br>')}</p>
+            </div>
+          </div>
+        `;
+        
+      } else {
+        // Konten KoKurikuler 
+        const sum = data.kokurSummary || {};
+        const currentPhotos = photosData[s] ? (photosData[s].kokur || []) : [];
+        
+        elemenBlocks = `
+          <h4 style="margin-top: 20px; font-size: 16px;">LAPORAN CAPAIAN PROJEK (KO KURIKULER)</h4>
+          <table class="raport-table-identity" style="width: 100%; border: 1px solid #222; margin-top: 10px;">
+            <tr>
+              <th style="border: 1px solid #222; background-color: #f2f2f2; width: 30%;">Jenis Kegiatan Ko-Kurikuler</th>
+              <th style="border: 1px solid #222; background-color: #f2f2f2;">Deskripsi Perkembangan</th>
+            </tr>
+            <tr>
+              <td style="border: 1px solid #222;">Pilihan Kegiatan Projek (P5/P-RBL)</td>
+              <td style="border: 1px solid #222;">${sum.desk ? sum.desk.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n\n/g, '<br><br>') : 'Belum ada data penilaian kegiatan Ko-Kurikuler.'}</td>
+            </tr>
+          </table>
+
+          <div style="margin-top: 20px;">
+            <p><strong>Dokumentasi Kegiatan Pilihan (3 Foto Terbaik)</strong></p>
+            <div class="raport-photos-block" style="justify-content: flex-start;">
+              ${currentPhotos.slice(0,3).map(src => `<div class="foto-item-cetak"><img src="${src}" alt="Foto Dokumen"></div>`).join('')}
+              ${3-currentPhotos.slice(0,3).length > 0 ? Array(3-currentPhotos.slice(0,3).length).fill('<div class="foto-item-cetak" style="background:#f0f0f0; display:flex; align-items:center; justify-content:center; color:#888; font-size:10px;">No Photo</div>').join('') : ''}
+            </div>
+          </div>
+        `;
+      }
+
+      // --- 4. PRESENSI & CATATAN GURU ---
+      const catatanPresensiHtml = `
+        <div style="page-break-before: auto; margin-top: 30px;">
+          <h4 style="font-size: 16px;">Catatan Tambahan & Presensi</h4>
+          <div style="display: flex; gap: 30px; margin-top: 10px;">
+            <div style="flex: 1;">
+              <p><strong>Refleksi/Catatan Guru:</strong></p>
+              <textarea style="width: 100%; height: 100px; padding: 8px; border: 1px solid #222;">${data.kokurSummary?.catatan || '-'}</textarea>
+            </div>
+            <div>
+              <p><strong>Presensi Siswa:</strong></p>
+              <table class="presensi-table">
+                <thead>
+                  <tr><th>Keterangan</th><th>Jumlah Hari</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Sakit</td><td>...... hari</td></tr>
+                  <tr><td>Izin</td><td>...... hari</td></tr>
+                  <tr><td>Tanpa Keterangan</td><td>...... hari</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // --- 5. Tanda Tangan ---
+      const ttdHtml = `
+        <div class="raport-ttd" style="page-break-inside: avoid;">
+          <table>
+            <tr>
+              <td></td>
+              <td>${tanggalRapor.split(',')[0].trim()},</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>Orang Tua/Wali</td>
+              <td>Guru Kelas</td>
+              <td>Kepala Sekolah</td>
+            </tr>
+            <tr>
+              <td class="signature-line"></td>
+              <td class="signature-line"></td>
+              <td class="signature-line"></td>
+            </tr>
+            <tr>
+              <td>(........................)</td>
+              <td>(${guruKelas})<br>NIP/NIK: ${nipGuru}</td>
+              <td>(${kepalaSekolah})<br>NIP/NIK: ${nipKepsek}</td>
+            </tr>
+          </table>
+        </div>
+      `;
+
+      // --- FINAL ASSEMBLY ---
+      const html = `<div class="raport-container">
+        ${headerHtml}
+        ${identitasHtml}
+        ${elemenBlocks}
+        ${catatanPresensiHtml}
+        ${ttdHtml}
+      </div>`;
+
+      const preview = document.getElementById('previewCetak');
+      if(preview) preview.innerHTML = html;
+      showSection('raport');
+
+      // Update tombol cetak menjadi tombol download PDF
+      const existingCetakBtn = preview.querySelector('.btn-cetak-final');
+      if(existingCetakBtn) existingCetakBtn.remove();
+      const cetakBtn = document.createElement('button');
+      cetakBtn.textContent = `⬇️ Download Raport ${jenis === 'intra' ? 'Intra' : 'KoKur'} (PDF)`;
+      cetakBtn.className = 'btn btn-cetak-final';
+      cetakBtn.onclick = () => cetakRaport(jenis, s);
+      preview.insertBefore(cetakBtn, preview.firstChild);
+    } 
+
+    /* =========================== Download PDF Logic (Menggantikan window.print) =========================== */
+    function cetakRaport(jenis, siswa) {
+      // Panggil prepareCetak untuk memastikan konten Raport sudah ada di DOM
+      prepareCetak(jenis);
+      const raportContent = document.querySelector('#previewCetak .raport-container');
+      if (!raportContent) { alert('Konten raport tidak ditemukan.'); return; }
+
+      // Ambil pustaka jsPDF dari window (karena di-load via CDN)
+      const { jsPDF } = window.jspdf;
+
+      const margin_mm = 15;
+      const A4_WIDTH_MM = 210;
+      const A4_HEIGHT_MM = 297; 
+      const contentWidth_mm = A4_WIDTH_MM - (2 * margin_mm);
+
+      // Gunakan html2canvas untuk merender elemen HTML menjadi gambar (canvas)
+      html2canvas(raportContent, { 
+        scale: 2 
+      }).then(canvas => {
+        const imgData = canvas.toDataURL('image/jpeg', 1.0); 
+
+        // Inisialisasi jsPDF (P = Portrait, mm = milimeter, A4)
+        const pdf = new jsPDF('p', 'mm', 'a4');
+
+        // Hitung dimensi gambar yang diskalakan ke lebar konten A4 (180mm)
+        const imgProps = pdf.getImageProperties(imgData);
+        const imgHeight_mm = (imgProps.height * contentWidth_mm) / imgProps.width;
+
+        let heightLeft = imgHeight_mm;
+        let position = 0;
+
+        // Tambahkan halaman pertama
+        pdf.addImage(imgData, 'JPEG', margin_mm, margin_mm, contentWidth_mm, imgHeight_mm);
+        heightLeft -= (A4_HEIGHT_MM - margin_mm); 
+        position -= (A4_HEIGHT_MM - margin_mm);
+
+        // Tambahkan halaman berikutnya jika ada
+        while (heightLeft >= -5) { 
+          pdf.addPage();
+          pdf.addImage(imgData, 'JPEG', margin_mm, position + margin_mm, contentWidth_mm, imgHeight_mm);
+          heightLeft -= (A4_HEIGHT_MM - (2*margin_mm)); 
+          position -= (A4_HEIGHT_MM - (2*margin_mm));
+        }
+
+        // Simpan file
+        const fileName = `Raport_${jenis}_${siswa.replace(/\s/g, '_')}_${new Date().getFullYear()}.pdf`;
+        pdf.save(fileName);
+        showToast(`Raport ${siswa} (${jenis}) berhasil diunduh!`);
+      }).catch(error => {
+        console.error('Gagal membuat PDF:', error);
+        alert('❌ Gagal mengunduh PDF. Silakan coba lagi. (Cek konsol untuk detail error)');
+      });
+    }
+
+
+    /* =========================== Pengaturan saving / logo =========================== */
+    function simpanPengaturan(){
+      pengaturan.namaSekolah = document.getElementById('namaSekolah').value;
+      pengaturan.namaYayasan = document.getElementById('namaYayasan').value;
+      pengaturan.alamatSekolah = document.getElementById('alamatSekolah').value;
+      pengaturan.kontakSekolah = document.getElementById('kontakSekolah').value;
+      pengaturan.kepalaSekolah = document.getElementById('kepalaSekolah').value;
+      pengaturan.nipKepsek = document.getElementById('nipKepsek').value;
+      pengaturan.guruKelas = document.getElementById('guruKelas').value;
+      pengaturan.nipGuru = document.getElementById('nipGuru').value;
+      pengaturan.tahunAjaran = document.getElementById('tahunAjaran').value;
+      pengaturan.semester = document.getElementById('semester').value;
+      pengaturan.tanggalRapor = document.getElementById('tanggalRapor').value;
+
+      localStorage.setItem('pengaturan', JSON.stringify(pengaturan));
+      renderTimPengembang();
+      applyPengaturanToUI();
+      showToast('Pengaturan disimpan');
+    }
+
+    document.getElementById('logoInput').addEventListener('change', function() {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          pengaturan.logoDataURL = e.target.result;
+          localStorage.setItem('pengaturan', JSON.stringify(pengaturan));
+          document.getElementById('logoPreview').src = e.target.result;
+          document.getElementById('logoDashboard').src = e.target.result;
+          showToast('Logo tersimpan');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    function applyPengaturanToUI(){
+      document.getElementById('namaSekolah').value = pengaturan.namaSekolah || '';
+      document.getElementById('namaYayasan').value = pengaturan.namaYayasan || '';
+      document.getElementById('alamatSekolah').value = pengaturan.alamatSekolah || '';
+      document.getElementById('kontakSekolah').value = pengaturan.kontakSekolah || '';
+      document.getElementById('kepalaSekolah').value = pengaturan.kepalaSekolah || '';
+      document.getElementById('nipKepsek').value = pengaturan.nipKepsek || '';
+      document.getElementById('guruKelas').value = pengaturan.guruKelas || '';
+      document.getElementById('nipGuru').value = pengaturan.nipGuru || '';
+      document.getElementById('tahunAjaran').value = pengaturan.tahunAjaran || '';
+      document.getElementById('semester').value = pengaturan.semester || '';
+      document.getElementById('tanggalRapor').value = pengaturan.tanggalRapor || '';
+      
+      const logoPreview = document.getElementById('logoPreview');
+      const logoDashboard = document.getElementById('logoDashboard');
+      if(pengaturan.logoDataURL) {
+        logoPreview.src = pengaturan.logoDataURL;
+        logoPreview.style.display = 'block';
+        logoDashboard.src = pengaturan.logoDataURL;
+      } else {
+        logoPreview.style.display = 'none';
+        logoDashboard.src = '';
+      }
+    }
+
+    function renderTimPengembang(){
+      // Placeholder for Tim Pengembang table rendering (can be expanded later)
+      const table = document.getElementById('timTable');
+      if(table) table.innerHTML = '<tr><th>Nama</th><th>No HP</th></tr><tr><td>[Nama Pengembang 1]</td><td>[Kontak 1]</td></tr>';
+    }
+
+
+  </script>
+</body>
+</html>
